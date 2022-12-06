@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game</title>
+    <style>
+td { 
+    border: thick solid navy;
+    font-weight: bold; 
+    text-align: center;
+    font-size: xx-large;
+    height: 100px;
+    width: 100px;
+    
+   
+}
+h1 {
+  font-size: 50px;
+  text-align: center;
+  color: navy;
+  
+
+}
+
+    </style>
+</head>
+<body>
+    <body style="background-color:beige;"></body>
+    <p>
+       
+      <h1>Memory Game</h1>
+       <hr class="line">
+        <br> 
+       
+       <form id="radio">
+        <input type = "radio" name= "difficulty" value= "beginner">beginner <br>
+        <input type = "radio" name= "difficulty" value= "advanced">advanced <br>
+        <input type = "radio" name= "difficulty" value= "expert">expert <br>
+        <input type = "button" value = "generate difficulty" onclick="generateboardwithdifficulty()"> <br>
+    </form>
+
+       <br>
+      
+</p>
+<table id="table"></table> <br>
+
+
+<p id="results"></p>
+
+</body>
+<script>
+ var card1=null
+ var card2=null
+ 
+
+
+const rowsInput = document.getElementById("rows");
+const columnsInput = document.getElementById("columns");
+const table = document.getElementById("table");
+const radioButtons = document.getElementById("radio").elements["difficulty"];
+const difficultyMap = new Map();
+const difficultyselect = document.getElementById("difficultyselect");
+
+
+difficultyMap.set("beginner", {height:3, width:4});
+difficultyMap.set("advanced", {height:4, width:5});
+difficultyMap.set("expert", {height:5, width:6});
+
+
+
+
+function generateboardwithdifficulty(){
+    let difficulty = radioButtons.value;
+    let num = difficultyMap.get(difficulty);
+GenerateBoard(num.height, num.width);
+}
+
+function GenerateBoard(numRows, numCols){
+   var NumbersList=[]
+   for(let j = 0; j < 2; j++){
+    for(let i = 1; i < (numRows*numCols/2) + 1; i++) {
+    NumbersList.push(i)
+   }
+   }
+   
+    table.innerHTML = "";
+    for(let i = 0; i < numRows; i++){
+        let row = "<tr>";
+
+        for(let j = 0; j < numCols; j++){
+            let idx=getRndInteger(0, NumbersList.length -1)
+            row += `<td onclick=\"clickcard(this)\" id=\"${NumbersList[idx]}\"> :) </td>`;
+            NumbersList.splice(idx, 1)
+        }
+
+        row += "</tr>";
+
+        table.innerHTML += row;
+    }
+     card1= null
+     card2= null
+}
+
+function clickcard(TheCard){
+    console.log("clicked card" + TheCard)
+     if (card1 == null){
+        card1 = TheCard
+     }
+     else if (card2== null){
+        card2 = TheCard
+     }
+     if ((card1 != null)){
+        if (card1.innerHTML != ""){
+        card1.innerHTML = card1.id
+        }
+     }
+     if ((card2 != null)){
+        if (card2.innerHTML != ""){
+        card2.innerHTML = card2.id
+        }
+     }
+     if ((card1 != null) && (card2 != null)) {
+        console.log("two cards selected")
+
+        
+
+        setTimeout(function(){
+            if (card1.id == card2.id){
+                card1.innerHTML = ""
+                card2.innerHTML = ""
+            }
+            if (card1.innerHTML != ""){
+                card1.innerHTML = ":)"
+            }
+            if (card2.innerHTML != ""){
+                card2.innerHTML = ":)"
+            }
+            
+            card1 = null
+            card2 = null
+        }, 750);
+        
+     }
+
+    }
+        
+function getRndInteger(min, max){
+    return Math.floor(Math.random() * (max - min) ) + min;
+}
+ var min = 0
+ var sec = 0
+ var timer;
+
+function IncrementTime(){
+    if (sec < 60) {
+        sec ++
+    }
+    if (sec == 60) {
+        min ++
+        sec = 0
+    }
+    console.log(`${min}:${(sec < 10) ? `0${sec}` : sec}`)
+}
+ function StartTimer(){
+    sec = 0
+    min = 0
+    timer = setInterval(() => {
+        IncrementTime()
+    }, 1000)
+ }
+ function StopTimer(){
+    clearInterval(timer)
+ }
+ 
+
+</script>
+</html>
+
+
+
