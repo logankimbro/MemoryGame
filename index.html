@@ -13,41 +13,65 @@ td {
     font-size: xx-large;
     height: 100px;
     width: 100px;
-    
-   
+
 }
 h1 {
   font-size: 50px;
   text-align: center;
   color: navy;
-  
 
+}
+body {
+    background-color:beige;
+
+}
+.top {
+display:flex;
+flex-direction: row; 
+justify-content: space-around;
+
+
+}
+.board-area{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 24px;
+
+}
+.directions{
+    width: 100%;
+    text-align: center;
+}
+#timer, #success-text{
+font-size: xx-large;
 }
 
     </style>
 </head>
 <body>
-    <body style="background-color:beige;"></body>
-    <p>
+    <h1>Memory Game</h1>
+    <hr class="line">
+    <p class="directions">
+        Start by choosing your difficulty. Click on the :) to flip the cards over to match the numbers. Once the difficulty is generated, the timer will start!
+    </p>
+    <hr class="line">
+    <br> 
+    <div class="top">
+        <form id="radio">
+            <input type = "radio" name= "difficulty" value= "beginner">beginner <br>
+            <input type = "radio" name= "difficulty" value= "advanced">advanced <br>
+            <input type = "radio" name= "difficulty" value= "expert">expert <br>
+            <input type = "button" value = "generate difficulty" onclick="generateboardwithdifficulty()"> <br>
+        </form>
+   
+        <div id="timer">00:00.00</div>
+        <p id = "success-text"></p>
+    </div> 
+<div class="board-area">
+    <table id="table"></table> 
+</div>
        
-      <h1>Memory Game</h1>
-       <hr class="line">
-        <br> 
-       
-       <form id="radio">
-        <input type = "radio" name= "difficulty" value= "beginner">beginner <br>
-        <input type = "radio" name= "difficulty" value= "advanced">advanced <br>
-        <input type = "radio" name= "difficulty" value= "expert">expert <br>
-        <input type = "button" value = "generate difficulty" onclick="generateboardwithdifficulty()"> <br>
-    </form>
-
-       <br>
-      
-</p>
-<table id="table"></table> <br>
-
-
-<p id="results"></p>
 
 </body>
 <script>
@@ -62,6 +86,7 @@ const table = document.getElementById("table");
 const radioButtons = document.getElementById("radio").elements["difficulty"];
 const difficultyMap = new Map();
 const difficultyselect = document.getElementById("difficultyselect");
+const successText = document.getElementById("success-text");
 
 
 difficultyMap.set("beginner", {height:3, width:4});
@@ -78,12 +103,13 @@ GenerateBoard(num.height, num.width);
 }
 
 function GenerateBoard(numRows, numCols){
-   var NumbersList=[]
-   for(let j = 0; j < 2; j++){
-    for(let i = 1; i < (numRows*numCols/2) + 1; i++) {
-    NumbersList.push(i)
-   }
-   }
+    var NumbersList=[]
+    for(let j = 0; j < 2; j++){
+        for(let i = 1; i < (numRows*numCols/2) + 1; i++) {
+            var entry =`${i}${j}`
+            NumbersList.push(entry)
+        }
+    }
    
     table.innerHTML = "";
     for(let i = 0; i < numRows; i++){
@@ -101,6 +127,9 @@ function GenerateBoard(numRows, numCols){
     }
      card1= null
      card2= null
+     Reset()
+     Start()
+     successText.innerHTML=""
 }
 
 function clickcard(TheCard){
@@ -113,12 +142,12 @@ function clickcard(TheCard){
      }
      if ((card1 != null)){
         if (card1.innerHTML != ""){
-        card1.innerHTML = card1.id
+        card1.innerHTML = card1.id[0]
         }
      }
      if ((card2 != null)){
         if (card2.innerHTML != ""){
-        card2.innerHTML = card2.id
+        card2.innerHTML = card2.id[0]
         }
      }
      if ((card1 != null) && (card2 != null)) {
@@ -128,18 +157,25 @@ function clickcard(TheCard){
 
         setTimeout(function(){
             if (card1.id == card2.id){
+                card1.innerHTML = ":)"
+                card2.innerHTML = ":)"
+            } else if (card1.id[0] == card2.id[0]){
                 card1.innerHTML = ""
                 card2.innerHTML = ""
-            }
+            } 
+            
             if (card1.innerHTML != ""){
                 card1.innerHTML = ":)"
-            }
+            } 
             if (card2.innerHTML != ""){
                 card2.innerHTML = ":)"
             }
             
+             
+            
             card1 = null
             card2 = null
+            CheckGame()
         }, 750);
         
      }
@@ -149,34 +185,58 @@ function clickcard(TheCard){
 function getRndInteger(min, max){
     return Math.floor(Math.random() * (max - min) ) + min;
 }
- var min = 0
- var sec = 0
- var timer;
 
-function IncrementTime(){
-    if (sec < 60) {
-        sec ++
+ function CheckGame(){
+    let done = true
+    let cards = document.getElementsByTagName("td")
+    for (card of cards){
+        if (card.innerHTML!=""){
+            done = false
+        }
     }
-    if (sec == 60) {
-        min ++
-        sec = 0
+    if (done){
+        Stop()
+        successText.innerHTML = "Great Job!"
     }
-    console.log(`${min}:${(sec < 10) ? `0${sec}` : sec}`)
-}
- function StartTimer(){
-    sec = 0
-    min = 0
-    timer = setInterval(() => {
-        IncrementTime()
-    }, 1000)
  }
- function StopTimer(){
-    clearInterval(timer)
- }
- 
+    const stopwatchElement = document.getElementById("timer");
+    
+    let stopwatch = null;
+    let min = 0;
+    let sec = 0;
+    let ms = 0;
 
+    function Start() {
+
+        stopwatch = setInterval(() => {
+            ms++;
+            if (ms == 100) {
+                sec++;
+                ms = 0;
+            }
+            if (sec == 60) {
+                min++;
+                sec = 0;
+            }
+
+            stopwatchElement.innerHTML = (min < 10 ? `0${min}` : min) + ':' + 
+                                         (sec < 10 ? `0${sec}` : sec) + '.' + 
+                                         (ms < 10 ? `0${ms}` : ms);
+        }, 10)
+    }
+
+    function Stop() {
+        
+        clearTimeout(stopwatch);
+    }
+
+    function Reset() {
+
+        min = 0;
+        sec = 0;
+        ms = 0;
+        clearTimeout(stopwatch);
+        stopwatchElement.innerHTML = "00:00.00";
+    }
 </script>
 </html>
-
-
-
